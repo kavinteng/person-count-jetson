@@ -278,6 +278,7 @@ def request_post(url, text):
         if response.ok:
             print("Upload completed successfully!")
             status_post = 1
+            print(response.json())
 
         else:
             print("Fall upload!")
