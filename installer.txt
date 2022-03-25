@@ -1,0 +1,28 @@
+sudo apt update
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt update
+sudo apt install python3.7
+
+ls -l /usr/bin/python*
+
+sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
+sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
+update-alternatives --config python3
+
+sudo apt install python3-pip
+pip3 install --upgrade pip
+
+git clone https://github.com/kavinteng/person-count-cam.git
+cd person-count-cam/
+pip3 install -r requirements.txt
+sudo apt install python3.7-dev
+pip3 install pycocotools
+
+pip install torch==1.7.1+cpu torchvision==0.8.2+cpu torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
+
+sudo apt-get install ffmpeg libsm6 libxext6
+
+sudo apt-get install nginx
+
+sudo apt-get install gunicorn3
