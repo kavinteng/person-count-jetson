@@ -7,8 +7,6 @@ import shutil
 import os
 import requests
 import gdown
-from pixellib.torchbackend.instance import instanceSegmentation
-from pixellib.instance import instance_segmentation
 
 if os.path.isdir('model') == False:
     os.mkdir('model')
@@ -90,16 +88,19 @@ def build_landmark(date_img, landmark):
 
 def main(url=None, cap=0, model=None, display_alltime=False, display_out=False, time_ref=10, line_notify=5):
     if model == 'pointrend-resnet101':
+        from pixellib.torchbackend.instance import instanceSegmentation
         segment_image = instanceSegmentation()
         segment_image.load_model("model/pointrend_resnet101.pkl", confidence=0.2, network_backbone="resnet101")
         target_classes = segment_image.select_target_classes(person=True)
         print('load pointrend101')
     elif model == 'pointrend-resnet50':
+        from pixellib.torchbackend.instance import instanceSegmentation
         segment_image = instanceSegmentation()
         segment_image.load_model("model/pointrend_resnet50.pkl", confidence=0.2)
         target_classes = segment_image.select_target_classes(person=True)
         print('load pointrend50')
     elif model == 'mask-RCNN':
+        from pixellib.instance import instance_segmentation
         segment_image = instance_segmentation()
         segment_image.load_model("model/mask_rcnn_coco.h5", confidence=0.2)
         target_classes = segment_image.select_target_classes(person=True)
