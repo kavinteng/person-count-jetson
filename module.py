@@ -8,19 +8,25 @@ import os
 import requests
 import gdown
 from pixellib.torchbackend.instance import instanceSegmentation
+from pixellib.instance import instance_segmentation
 
 if os.path.isdir('model') == False:
     os.mkdir('model')
 
-file = 'model/pointrend_resnet101.pkl'
-if os.path.isfile(file) == False:
+file1 = 'model/pointrend_resnet101.pkl'
+if os.path.isfile(file1) == False:
     url = "https://drive.google.com/uc?id=1sEbgtKhVMihMi_HHnamknlW_hIiJpUXe"
-    gdown.download(url, file)
+    gdown.download(url, file1)
 
-segment_image = instanceSegmentation()
-segment_image.load_model("model/pointrend_resnet101.pkl", confidence=0.2, network_backbone="resnet101")
-target_classes = segment_image.select_target_classes(person=True)
+file2 = 'model/pointrend_resnet50.pkl'
+if os.path.isfile(file2) == False:
+    url = "https://drive.google.com/uc?id=1Nk0V_z1QUaAfdMKNp4FaSZmhHKq3dr22"
+    gdown.download(url, file2)
 
+file3 = 'model/mask_rcnn_coco.h5'
+if os.path.isfile(file3) == False:
+    url = "https://drive.google.com/uc?id=1effTCgaRxzY0GcmgGyJf1TyiGuim_2vT"
+    gdown.download(url, file3)
 
 def build_folder_file():
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -82,8 +88,22 @@ def build_landmark(date_img, landmark):
     except:
         print('File is open, Process will pause')
 
-
-def main(url=None, cap=0, display_alltime=False, display_out=False, time_ref=10, line_notify=5):
+def main(url=None, cap=0, model=None, display_alltime=False, display_out=False, time_ref=10, line_notify=5):
+    if model == 'pointrend-resnet101':
+        segment_image = instanceSegmentation()
+        segment_image.load_model("model/pointrend_resnet101.pkl", confidence=0.2, network_backbone="resnet101")
+        target_classes = segment_image.select_target_classes(person=True)
+        print('load pointrend101')
+    elif model == 'pointrend-resnet50':
+        segment_image = instanceSegmentation()
+        segment_image.load_model("model/pointrend_resnet50.pkl", confidence=0.2)
+        target_classes = segment_image.select_target_classes(person=True)
+        print('load pointrend50')
+    elif model == 'mask-RCNN':
+        segment_image = instance_segmentation()
+        segment_image.load_model("model/mask_rcnn_coco.h5", confidence=0.2)
+        target_classes = segment_image.select_target_classes(person=True)
+        print('load mask-rcnn')
     cap = cv2.VideoCapture(cap)
 
     check_rec = 0
@@ -122,15 +142,20 @@ def main(url=None, cap=0, display_alltime=False, display_out=False, time_ref=10,
                                                               segment_target_classes=target_classes,
                                                               extract_segmented_objects=True,
                                                               save_extracted_objects=False)
-            if len(result['object_counts']) != 0:
-                for i in range(result['object_counts']['person']):
+
+            if model == 'mask-RCNN':
+                model_count = result['rois']
+            else:
+                model_count = result['boxes']
+            if len(model_count) != 0:
+                for i in range(len(model_count)):
                     output_landmark = []
-                    xmin = int(result['boxes'][i][0])
-                    ymin = int(result['boxes'][i][1])
-                    xmax = int(result['boxes'][i][2])
-                    ymax = int(result['boxes'][i][3])
-                    conf = result['scores'][i]
-                    obj_name = result['class_names'][i]
+                    xmin = int(model_count[i][0])
+                    ymin = int(model_count[i][1])
+                    xmax = int(model_count[i][2])
+                    ymax = int(model_count[i][3])
+                    # conf = result['scores'][i]
+                    # obj_name = result['class_names'][i]
                     extracted = result['extracted_objects'][i]
 
                     x = xmax - xmin
